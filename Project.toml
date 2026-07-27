@@ -1,0 +1,14 @@
+name = "PathStrings"
+uuid = "313e5630-e80e-42f4-9e3f-8bfd502c4f6a"
+version = "0.1.0"
+authors = ["WooKyoung Noh <wookay.noh@gmail.com>"]
+
+[compat]
+Jive = "0.3"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+Jive = "ba5e3d4b-8524-549f-bc71-e76ad9e9deed"
+
+[targets]
+test = ["Test", "Jive"]
