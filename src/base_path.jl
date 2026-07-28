@@ -1,4 +1,4 @@
-# module PathStrings
+# module PathStrings.Path
 
 # from julia/base/path.jl
 
@@ -19,76 +19,76 @@ import Base: abspath,
              splitext,
              splitpath
 
-function abspath(path::Path)::Path
-    Path(abspath(path.s))
+function abspath(path::PathString)::PathString
+    PathString(abspath(path.s))
 end
 
-function basename(path::Path)::Path
-    Path(basename(path.s))
+function basename(path::PathString)::PathString
+    PathString(basename(path.s))
 end
 
-function dirname(path::Path)::Path
-    Path(dirname(path.s))
+function dirname(path::PathString)::PathString
+    PathString(dirname(path.s))
 end
 
-function expanduser(path::Path)::Path
-    Path(expanduser(path.s))
+function expanduser(path::PathString)::PathString
+    PathString(expanduser(path.s))
 end
 
-function contractuser(path::Path)::Path
-    Path(contractuser(path.s))
+function contractuser(path::PathString)::PathString
+    PathString(contractuser(path.s))
 end
 
-function homedir(path::Path)::Union{Path,Nothing}
+function homedir(path::PathString)::Union{PathString,Nothing}
     dir = homedir(path.s)
-    dir === nothing ? nothing : Path(dir)
+    dir === nothing ? nothing : PathString(dir)
 end
 
-function isabspath(path::Path)::Bool
+function isabspath(path::PathString)::Bool
     isabspath(path.s)
 end
 
-function isdirpath(path::Path)::Bool
+function isdirpath(path::PathString)::Bool
     isdirpath(path.s)
 end
 
-function joinpath(paths::Path...)::Path
+function joinpath(paths::PathString...)::PathString
     args = map(paths) do path
         path.s
     end
-    Path(joinpath(args...))
+    PathString(joinpath(args...))
 end
 
-function normpath(path::Path)::Path
-    Path(normpath(path.s))
+function normpath(path::PathString)::PathString
+    PathString(normpath(path.s))
 end
 
-function realpath(path::Path)::Path
-    Path(realpath(path.s))
+function realpath(path::PathString)::PathString
+    PathString(realpath(path.s))
 end
 
-function relpath(path::Path)::Path
-    Path(relpath(path.s))
+function relpath(path::PathString)::PathString
+    PathString(relpath(path.s))
 end
 
-function splitdir(path::Path)::Tuple{Path, Path}
+function splitdir(path::PathString)::Tuple{PathString, PathString}
     dir, file = splitdir(path.s)
-    (Path(dir), Path(file))
+    (PathString(dir), PathString(file))
 end
 
-function splitdrive(path::Path)::Tuple{Path, Path}
+function splitdrive(path::PathString)::Tuple{PathString, PathString}
     drive_letter_part, path_part = splitdrive(path.s)
-    (Path(drive_letter_part), Path(path_part))
+    (PathString(drive_letter_part), PathString(path_part))
 end
 
-function splitext(path::Path)::Tuple{Path, Path}
+function splitext(path::PathString)::Tuple{PathString, PathString}
     path_without_extension, extension = splitdrive(path.s)
-    (Path(path_without_extension), Path(extension))
+    (PathString(path_without_extension), PathString(extension))
 end
 
-function splitpath(path::Path)::Vector{Path}
+function splitpath(path::PathString)::Vector{PathString}
     path_components = splitpath(path.s)
-    map(Path, path_components)
+    map(PathString, path_components)
 end
 
-# module PathStrings
+# module PathStrings.Path

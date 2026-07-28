@@ -1,9 +1,8 @@
 module PathStrings
 
-export Path, @Path_str
-include("types.jl")
+export Path, PathString, @Path_str
 
-include("base_path.jl")
-include("base_file.jl")
+include("Path.jl")
+using .Path: PathString, @Path_str
 
 end # module PathStrings

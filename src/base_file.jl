@@ -1,4 +1,4 @@
-# module PathStrings
+# module PathStrings.Path
 
 # from julia/base/file.jl
 #      julia/base/stat.jl
@@ -27,93 +27,93 @@ import Base: cd,
              # tempdir,
              tempname,
              touch,
-             unlink,
-             walkdir
+             unlink
+             # walkdir
 
-function cd(path::Path)
+function cd(path::PathString)
     cd(path.s)
 end
 
-function chmod(path::Path, mode::Integer; recursive::Bool=false)
+function chmod(path::PathString, mode::Integer; recursive::Bool=false)
     chmod(path.s, mode; recursive)
 end
 
-function chown(path::Path, owner::Integer, group::Integer=-1)
+function chown(path::PathString, owner::Integer, group::Integer=-1)
     chown(path.s, owner, group)
 end
 
-function cp(src::Path, dst::Path; force::Bool=false, follow_symlinks::Bool=false)
+function cp(src::PathString, dst::PathString; force::Bool=false, follow_symlinks::Bool=false)
     cp(src.s, dst.s; force, follow_symlinks)
 end
 
-function cptree(src::Path, dst::Path; force::Bool=false, follow_symlinks::Bool=false)
+function cptree(src::PathString, dst::PathString; force::Bool=false, follow_symlinks::Bool=false)
     cptree(src.s, dst.s; force, follow_symlinks)
 end
 
-function diskstat(path::Path)
+function diskstat(path::PathString)
     diskstat(path.s)
 end
 
-function hardlink(src::Path, dst::Path)
+function hardlink(src::PathString, dst::PathString)
     hardlink(src.s, dst.s)
 end
 
-function mkdir(path::Path; mode::Integer = 0o777)
+function mkdir(path::PathString; mode::Integer = 0o777)
     mkdir(path.s; mode)
 end
 
-function mkpath(path::Path; mode::Integer = 0o777)
+function mkpath(path::PathString; mode::Integer = 0o777)
     mkpath(path.s; mode)
 end
 
 const temp_prefix = "jl_"
-function mktempdir(parent::Path; prefix::AbstractString=temp_prefix, cleanup::Bool=true)
+function mktempdir(parent::PathString; prefix::AbstractString=temp_prefix, cleanup::Bool=true)
     mktempdir(parent.s; prefix, cleanup)
 end
 
-function mv(src::Path, dst::Path; force::Bool=false)
+function mv(src::PathString, dst::PathString; force::Bool=false)
     mv(src.s, dst.s; force)
 end
 
-function rename(oldpath::Path, newpath::Path)
+function rename(oldpath::PathString, newpath::PathString)
     rename(oldpath.s, newpath.s)
 end
 
-function readlink(path::Path)::Path
-    Path(readlink(path.s))
+function readlink(path::PathString)::PathString
+    PathString(readlink(path.s))
 end
 
-function readdir(dir::Path; kwargs...)::Vector{Path}
+function readdir(dir::PathString; kwargs...)::Vector{PathString}
     files = readdir(dir.s; kwargs...)
-    map(Path, files)
+    map(PathString, files)
 end
 
-function rm(path::Path; force::Bool=false, recursive::Bool=false, allow_delayed_delete::Bool=true)
+function rm(path::PathString; force::Bool=false, recursive::Bool=false, allow_delayed_delete::Bool=true)
     rm(path.s; force, recursive, allow_delayed_delete)
 end
 
 # from julia/base/stat.jl
-function samefile(a::Path, b::Path)::Bool
+function samefile(a::PathString, b::PathString)::Bool
     samefile(a.s, b.s)
 end
 
-function sendfile(src::Path, dst::Path; force::Bool=true)
+function sendfile(src::PathString, dst::PathString; force::Bool=true)
     sendfile(src.s, dst.s; force)
 end
 
-function symlink(target::Path, link::Path; dir_target::Bool = false)
+function symlink(target::PathString, link::PathString; dir_target::Bool = false)
     symlink(target.s, link.s; dir_target)
 end
 
-function tempname(parent::Path; max_tries::Int = 100, cleanup::Bool=true, suffix::AbstractString="")
+function tempname(parent::PathString; max_tries::Int = 100, cleanup::Bool=true, suffix::AbstractString="")
     tempname(parent.s; max_tries, cleanup, suffix)
 end
 
-function touch(path::Path)
+function touch(path::PathString)
     touch(path.s)
 end
 
-function unlink(p::Path)
+function unlink(p::PathString)
     unlink(p.s)
 end
 
@@ -133,8 +133,8 @@ function _path_walkdir(chnl, path, topdown, follow_symlinks, onerror)
         end
     entries = tryf(p -> readdir(p, DirEntry), path)
     entries === nothing && return
-    dirs = Vector{Path}()
-    files = Vector{Path}()
+    dirs = Vector{PathString}()
+    files = Vector{PathString}()
     for entry in entries
         # If we're not following symlinks, then treat all symlinks as files
         if (!follow_symlinks && something(tryf(islink, entry), true)) || !something(tryf(isdir, entry), false)
@@ -156,33 +156,22 @@ function _path_walkdir(chnl, path, topdown, follow_symlinks, onerror)
     nothing
 end
 
-function walkdir(path::Path; topdown=true, follow_symlinks=false, onerror=throw)
-    return Channel{Tuple{Path,Vector{Path},Vector{Path}}}(chnl ->
+function Base.walkdir(path::PathString; topdown=true, follow_symlinks=false, onerror=throw)
+    return Channel{Tuple{PathString,Vector{PathString},Vector{PathString}}}(chnl ->
         _path_walkdir(chnl, path, topdown, follow_symlinks, onerror))
 end
 
-function path_pwd()::Path
-    Path(pwd())
+# static functions
+function pwd()::PathString
+    PathString(Base.pwd())
 end
 
-function path_tempdir()::Path
-    Path(tempdir())
+function tempdir()::PathString
+    PathString(Base.tempdir())
 end
 
-function path_walkdir(path::Path = path_pwd(); topdown=true, follow_symlinks=false, onerror=throw)
+function walkdir(path::PathString = Path.pwd(); topdown=true, follow_symlinks=false, onerror=throw)
     walkdir(path; topdown, follow_symlinks, onerror)
 end
 
-function Base.getproperty(x::Type{Path}, field::Symbol)
-    if field === :pwd
-        path_pwd
-    elseif field === :tempdir
-        path_tempdir
-    elseif field === :walkdir
-        path_walkdir
-    else
-        getfield(x, field)
-    end
-end
-
-# module PathStrings
+# module PathStrings.Path

@@ -1,11 +1,11 @@
-# module PathStrings
+# module PathStrings.Path
 
-struct Path
+struct PathString
     s::String
 end
 
 macro Path_str(s)
-    Path(s)
+    PathString(s)
 end
 
-# module PathStrings
+# module PathStrings.Path
