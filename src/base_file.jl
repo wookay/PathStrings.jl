@@ -88,6 +88,10 @@ function readdir(dir::PathString; kwargs...)::Vector{PathString}
     map(PathString, files)
 end
 
+if VERSION >= v"1.14.0-DEV.2415" # julia commit 129432def9
+    readdir(dir::PathString, ::Type{DirEntry}; sort::Bool=true)::Vector{DirEntry} = readdir(dir.s, DirEntry; sort)
+end
+
 function rm(path::PathString; force::Bool=false, recursive::Bool=false, allow_delayed_delete::Bool=true)
     rm(path.s; force, recursive, allow_delayed_delete)
 end
@@ -117,48 +121,12 @@ function unlink(p::PathString)
     unlink(p.s)
 end
 
-# from julia/base/file.jl
-# function _walkdir(chnl, path, topdown, follow_symlinks, onerror)
-function _path_walkdir(chnl, path, topdown, follow_symlinks, onerror)
-    tryf(f, p) = try
-            f(p)
-        catch err
-            isa(err, IOError) || rethrow()
-            try
-                onerror(err)
-            catch err2
-                close(chnl, err2)
-            end
-            return
-        end
-    entries = tryf(p -> readdir(p, DirEntry), path)
-    entries === nothing && return
-    dirs = Vector{PathString}()
-    files = Vector{PathString}()
-    for entry in entries
-        # If we're not following symlinks, then treat all symlinks as files
-        if (!follow_symlinks && something(tryf(islink, entry), true)) || !something(tryf(isdir, entry), false)
-            push!(files, basename(entry))
-        else
-            push!(dirs, basename(entry))
-        end
-    end
-
-    if topdown
-        push!(chnl, (path, dirs, files))
-    end
-    for dir in dirs
-        _path_walkdir(chnl, joinpath(path, dir), topdown, follow_symlinks, onerror)
-    end
-    if !topdown
-        push!(chnl, (path, dirs, files))
-    end
-    nothing
+function Path_walkdir(path::PathString; kwargs...)
+    Base.walkdir(path.s; kwargs...)
 end
 
 function Base.walkdir(path::PathString; topdown=true, follow_symlinks=false, onerror=throw)
-    return Channel{Tuple{PathString,Vector{PathString},Vector{PathString}}}(chnl ->
-        _path_walkdir(chnl, path, topdown, follow_symlinks, onerror))
+    Path_walkdir(path; topdown, follow_symlinks, onerror)
 end
 
 # static functions
@@ -171,7 +139,7 @@ function tempdir()::PathString
 end
 
 function walkdir(path::PathString = Path.pwd(); topdown=true, follow_symlinks=false, onerror=throw)
-    walkdir(path; topdown, follow_symlinks, onerror)
+    Path_walkdir(path; topdown, follow_symlinks, onerror)
 end
 
 # module PathStrings.Path
