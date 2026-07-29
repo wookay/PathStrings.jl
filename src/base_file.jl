@@ -31,60 +31,60 @@ import Base: cd,
              # walkdir
 
 function cd(path::PathString)
-    cd(path.s)
+    Base.cd(path.s)
 end
 
 function chmod(path::PathString, mode::Integer; recursive::Bool=false)
-    chmod(path.s, mode; recursive)
+    Base.chmod(path.s, mode; recursive)
 end
 
 function chown(path::PathString, owner::Integer, group::Integer=-1)
-    chown(path.s, owner, group)
+    Base.chown(path.s, owner, group)
 end
 
 function cp(src::PathString, dst::PathString; force::Bool=false, follow_symlinks::Bool=false)
-    cp(src.s, dst.s; force, follow_symlinks)
+    Base.cp(src.s, dst.s; force, follow_symlinks)
 end
 
 function cptree(src::PathString, dst::PathString; force::Bool=false, follow_symlinks::Bool=false)
-    cptree(src.s, dst.s; force, follow_symlinks)
+    Base.cptree(src.s, dst.s; force, follow_symlinks)
 end
 
 function diskstat(path::PathString)
-    diskstat(path.s)
+    Base.diskstat(path.s)
 end
 
 function hardlink(src::PathString, dst::PathString)
-    hardlink(src.s, dst.s)
+    Base.hardlink(src.s, dst.s)
 end
 
 function mkdir(path::PathString; mode::Integer = 0o777)
-    mkdir(path.s; mode)
+    Base.mkdir(path.s; mode)
 end
 
 function mkpath(path::PathString; mode::Integer = 0o777)
-    mkpath(path.s; mode)
+    Base.mkpath(path.s; mode)
 end
 
 const temp_prefix = "jl_"
 function mktempdir(parent::PathString; prefix::AbstractString=temp_prefix, cleanup::Bool=true)
-    mktempdir(parent.s; prefix, cleanup)
+    Base.mktempdir(parent.s; prefix, cleanup)
 end
 
 function mv(src::PathString, dst::PathString; force::Bool=false)
-    mv(src.s, dst.s; force)
+    Base.mv(src.s, dst.s; force)
 end
 
 function rename(oldpath::PathString, newpath::PathString)
-    rename(oldpath.s, newpath.s)
+    Base.rename(oldpath.s, newpath.s)
 end
 
 function readlink(path::PathString)::PathString
-    PathString(readlink(path.s))
+    (PathString ∘ Base.readlink)(path.s)
 end
 
 function readdir(dir::PathString; kwargs...)::Vector{PathString}
-    files = readdir(dir.s; kwargs...)
+    files = Base.readdir(dir.s; kwargs...)
     map(PathString, files)
 end
 
@@ -93,32 +93,32 @@ if VERSION >= v"1.14.0-DEV.2415" # julia commit 129432def9
 end
 
 function rm(path::PathString; force::Bool=false, recursive::Bool=false, allow_delayed_delete::Bool=true)
-    rm(path.s; force, recursive, allow_delayed_delete)
+    Base.rm(path.s; force, recursive, allow_delayed_delete)
 end
 
 # from julia/base/stat.jl
 function samefile(a::PathString, b::PathString)::Bool
-    samefile(a.s, b.s)
+    Base.samefile(a.s, b.s)
 end
 
 function sendfile(src::PathString, dst::PathString; force::Bool=true)
-    sendfile(src.s, dst.s; force)
+    Base.sendfile(src.s, dst.s; force)
 end
 
 function symlink(target::PathString, link::PathString; dir_target::Bool = false)
-    symlink(target.s, link.s; dir_target)
+    Base.symlink(target.s, link.s; dir_target)
 end
 
 function tempname(parent::PathString; max_tries::Int = 100, cleanup::Bool=true, suffix::AbstractString="")
-    tempname(parent.s; max_tries, cleanup, suffix)
+    Base.tempname(parent.s; max_tries, cleanup, suffix)
 end
 
 function touch(path::PathString)
-    touch(path.s)
+    Base.touch(path.s)
 end
 
 function unlink(p::PathString)
-    unlink(p.s)
+    Base.unlink(p.s)
 end
 
 function Path_walkdir(path::PathString; kwargs...)
@@ -131,11 +131,11 @@ end
 
 # static functions
 function pwd()::PathString
-    PathString(Base.pwd())
+    (PathString ∘ Base.pwd)()
 end
 
 function tempdir()::PathString
-    PathString(Base.tempdir())
+    (PathString ∘ Base.tempdir)()
 end
 
 function walkdir(path::PathString = Path.pwd(); topdown=true, follow_symlinks=false, onerror=throw)
